@@ -1,146 +1,77 @@
+from flask.cli import load_dotenv
 from flask import Flask, request, jsonify #importing flask application class, request allows us to read the data sent to the client
-app = Flask(__name__) # This creates our Flask application. Jsonify helps us to return the results properly in json
+from flask_sqlalchemy import SQLAlchemy #SQLAlchemy it bascially translates python operation into SQL
+#SQLAlchemy also uses ORM=Object Relational Mapping without ORM we may write the raw sql queries in our application
 
-jobs = [
-    {
-        "id": 1,
-        "role": "Software Engineer",
-        "location": "Bangalore",
-        "company": "Google",
-        "status": "Applied"
-    },
-    {
-        "id": 2,
-        "role": "SDE Intern",
-        "location": "Hyderabad",
-        "company": "Microsoft",
-        "status": "Rejected"
-    },
-    {
-        "id": 3,
-        "role": "SDE",
-        "location": "Pune",
-        "company": "Amazon",
-        "status": "In-process"
-    }
-]
-@app.route("/")
-def home():
-    return "Welcome to JobTrack API!"
+import os
+#from app import app                         
+from dotenv import load_dotenv
+from routes.job_routes import job_bp  #importing job_bp from job_routes
+from extensions import db, jwt
+from routes.auth_routes import auth_bp
+from flask_migrate import Migrate   #this is used for migration of the database
+load_dotenv()
 
-@app.route("/api/jobs", methods=["GET"]) #this route for getting all jobs 
-def get_jobs():
-    return jsonify(jobs)
+def create_app(test_config=None):
 
-@app.route("/api/jobs/<int:job_id>") #When someone requests /, execute the function below.
-def get_jobs_by_id(job_id): # this route for getting job for a particular id 
-    for job in jobs:
-        if job["id"] == job_id:
-            return jsonify(job)
-    return jsonify({
-        "error": "Job not found"
-    }), 404 #404 for not found in the data
-   
-@app.route("/api/jobs", methods=["POST"])
-def create_job():
-    data = request.json
-    new_job ={
-        "id": len(jobs) + 1,
-        "role": data["role"],
-        "location": data["location"],
-        "company": data["company"],
-        "status": data["status"]
-    }
-    jobs.append(new_job)
-    return jsonify(new_job), 201 #201 is for creation and it shows the new job created 
+    app = Flask(__name__)
 
-@app.route("/api/jobs/<int:job_id>", methods=["PUT"]) #Update 
-def update_job(job_id):
-    data = request.json
+    if test_config is None:
 
-    for job in jobs:
-        if job["id"] == job_id:
-            job["role"] = data["role"]
-            job["location"] = data["location"]
-            job["company"] = data["company"]
-            job["status"] = data["status"]
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///jobtrack.db"
 
-            return jsonify(job)
-    return jsonify({
-        "error": "Job not found"
-    }), 404
+        app.config["JWT_SECRET_KEY"] = os.getenv(
+            "JWT_SECRET_KEY"
+        )
 
-@app.route("/api/jobs/<int:job_id>", methods=["DELETE"])
-def delete_job(job_id):
+    else:
 
-    for job in jobs:
+        app.config.update(test_config)
 
-        if job["id"] == job_id:
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-            jobs.remove(job)
+    db.init_app(app)
+    jwt.init_app(app)
 
-            return jsonify({
-                "message": "Job deleted successfully"
-            })
+    Migrate(app, db)
 
-    return jsonify({
-        "error": "Job not found"
-    }), 404
-    
+    app.register_blueprint(job_bp)
+    app.register_blueprint(auth_bp)
+
+    @app.route("/")
+    def home():
+        return "Welcome to Job Application!!"
+
+    return app
 
 
+app = create_app()
 
-
-    
 
 if __name__ == "__main__":
     app.run(debug=True)
 
 
+'''app = Flask(__name__) # This creates our Flask application. Jsonify helps us to return the results properly in json
 
 
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///jobtrack.db" #Tells flask to use sqlite database name as jobtrack.db
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False 
 
-# pyrefly: ignore [parse-error]
-'''print("Welcome to Job Track Application")
+#app.config["JWT_SECRET_KEY"] = "supersecretkey"
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+db.init_app(app)
+jwt.init_app(app)
+migrate = Migrate(app, db)
 
-class Job:
-    def __init__(self, role, location, company, status):
-        self.role = role
-        self.location = location
-        self.company = company
-        self.status = status
-    def display_Job(self):
-        print(f"{self.role} at {self.company}")
-        print(f"Location: {self.location}")
-        print(f"Status: {self.status}")
-
-    def update_status(self, new_status):
-        self.status = new_status
-
-class jobtracker:
-    def __init__(self):
-        self.jobs = []
-    def add_jobs(self, jobs):
-        self.jobs.append(jobs)
-    def show_jobs(self):
-        for job in self.jobs:
-            job.display_Job()
-            print()
-
-tracker = jobtracker()
+app.register_blueprint(job_bp) #this is where we register the job_blueprint
+app.register_blueprint(auth_bp) #this is where we register the auth_bp
 
 
-        
+@app.route("/")
+def home():
+    return "Welcome to Job Application"
 
+if __name__ == "__main__":
+    app.run(debug=True)'''
 
-job1 = Job("Software Engineer", "Banglore", "Google", "Applied")
-job2 = Job("SDE Intern", "Hyderabad", "Microsoft", "Rejected")
-job3 = Job("SDE", "Pune", "Amazon", "In-process")
-
-tracker.add_jobs(job1)
-tracker.add_jobs(job2)
-tracker.add_jobs(job3)
-
-tracker.show_jobs() '''
-
-    
