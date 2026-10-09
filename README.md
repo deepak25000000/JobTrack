@@ -76,11 +76,26 @@ Add a new job application.
 ```text
 JobTrack/
 │
-├── app.py                 # Application entry point
+├── .github/
+│   └── workflows/
+│       └── tests.yml      # CI/CD pipeline for automated testing
+├── migrations/            # Database migration scripts
+├── models/                # Database models
+│   ├── __init__.py
+│   ├── job.py             # Job application model
+│   └── user.py            # User model
+├── routes/                # API endpoints
+│   ├── __init__.py
+│   ├── auth_routes.py     # User registration and login routes
+│   └── job_routes.py      # Job CRUD endpoints
+├── tests/                 # Pytest test cases
+│   ├── conftest.py        # Pytest fixtures
+│   ├── test_auth.py       # Authentication tests
+│   └── test_jobs.py       # Job endpoints tests
+│
+├── .env                   # Environment variables (DB URL, JWT Secret)
+├── .gitignore             # Git ignore file
+├── app.py                 # Main Flask application entry point
 ├── extensions.py          # Flask extensions setup
-├── requirements.txt       # Project dependencies
-├── models/                # Database models (User, Job)
-├── routes/                # API endpoints (Auth, Jobs)
-├── migrations/            # Database migration files
-└── tests/                 # Pytest test cases
+└── requirements.txt       # Project dependencies
 ```
