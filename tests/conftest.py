@@ -22,23 +22,3 @@ def client():
         db.session.remove()
         db.drop_all()
 
-def test_login_wrong_password(client):
-
-    client.post(
-        "/api/auth/register",
-        json={
-            "username": "wrongpass",
-            "email": "wrongpass@example.com",
-            "password": "Password123"
-        }
-    )
-
-    response = client.post(
-        "/api/auth/login",
-        json={
-            "username": "wrongpass",
-            "password": "WrongPassword"
-        }
-    )
-
-    assert response.status_code == 401

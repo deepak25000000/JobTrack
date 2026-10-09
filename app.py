@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy #SQLAlchemy it bascially translates pyth
 #SQLAlchemy also uses ORM=Object Relational Mapping without ORM we may write the raw sql queries in our application
 
 import os
-#from app import app                         
+#from app import app
 from dotenv import load_dotenv
 from routes.job_routes import job_bp  #importing job_bp from job_routes
 from extensions import db, jwt
@@ -20,10 +20,34 @@ def create_app(test_config=None):
         app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv( #the application reads the database connection string from an environment variable. That lets us use PostgreSQL locally and on a hosting platform without hard-coding database credentials.
             "DATABASE_URL",
             "sqlite:///jobtrack.db"
-        )  
+        )
+
+        # Convert PostgreSQL URLs to use Psycopg 3.
+        # Render may provide either of these URL formats.
+        database_url = app.config["SQLALCHEMY_DATABASE_URI"]
+
+        if database_url.startswith("postgres://"):
+            database_url = database_url.replace(
+                "postgres://",
+                "postgresql+psycopg://",
+                1
+            )
+        elif database_url.startswith("postgresql://"):
+            database_url = database_url.replace(
+                "postgresql://",
+                "postgresql+psycopg://",
+                1
+            )
+
+        app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+
         app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY") #this helps to create the hash code for the password
 
-        
+        if not app.config["JWT_SECRET_KEY"]:
+            raise RuntimeError(
+                "JWT_SECRET_KEY is missing. Set it in your environment."
+            )
+
     else:
 
         app.config.update(test_config)
@@ -41,13 +65,12 @@ def create_app(test_config=None):
     @app.route("/")
     def home():
         return "Welcome to Job Application!!"
-    
+
     @app.route("/health", methods=["GET"])
     def health():
         return jsonify({
             "status": "ok"
         }), 200
-    
 
     return app
 
@@ -63,7 +86,7 @@ if __name__ == "__main__":
 
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///jobtrack.db" #Tells flask to use sqlite database name as jobtrack.db
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False 
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 #app.config["JWT_SECRET_KEY"] = "supersecretkey"
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
@@ -81,4 +104,3 @@ def home():
 
 if __name__ == "__main__":
     app.run(debug=True)'''
-
