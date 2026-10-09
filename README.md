@@ -1,64 +1,86 @@
-#JOBTRACK API
-Jobtrack Restfull API backend for manging and tracking job applications..
-The project allows authenticated users to create, view, update, delete, search and filter their own job applications.
+# JobTrack API
+
+JobTrack is a secure, RESTful API backend designed for managing and tracking job applications. It allows authenticated users to create, view, update, delete, search, and filter their own job applications efficiently.
+
+**Live Backend URL:** [https://jobtrack-827x.onrender.com](https://jobtrack-827x.onrender.com)
 
 ---
 
-## Features:
-- User registration
-- User login
-- Password hashing
-- JWT authentication
-- User-specific job ownership
-- Create job applications
-- Read job applications
-- Update job applications
-- Delete job applications
-- Search jobs by role
-- Filter by status
-- Filter by company
-- Filter by location
-- Pagination
-- Sorting
-- Database migrations
-- Automated testing 
+## 🚀 Features
 
-## Tech Stack
-- Python
-- Flask
-- Flask-SQLAlchemy
-- SQLAlchemy
-- SQLite
-- Flask-JWT-Extended
-- Flask-Migrate
-- Alembic
-- pytest
-- PostgreSQL for production
+- **Authentication & Security:** User registration, login, password hashing, and JWT-based authentication. User-specific data isolation (users can access only their own jobs).
+- **Job Management:** Complete CRUD operations (Create, Read, Update, Delete) for job applications.
+- **Advanced Querying:** Search by job role, and filter by status, company, or location. Includes pagination and sorting.
+- **Code Quality:** Automated testing (`pytest`) and database migrations (`Flask-Migrate`).
 
-# Project Structure
+---
+
+## 💻 Tech Stack
+
+- **Language:** Python
+- **Framework:** Flask
+- **Database & ORM:** PostgreSQL (Production), SQLite (Local Development), Flask-SQLAlchemy, SQLAlchemy
+- **Authentication:** Flask-JWT-Extended
+- **Migrations:** Flask-Migrate (Alembic)
+- **Testing:** pytest
+
+---
+
+## 🧪 API Testing Guide (via Postman)
+
+You can easily test the API using [Postman](https://www.postman.com/) or any other API client. The base URL is `https://jobtrack-827x.onrender.com`.
+
+### 1. User Creation (Register)
+Create a new user account.
+- **Endpoint:** `POST /api/auth/register`
+- **Body (JSON):**
+  ```json
+  {
+    "username": "testuser",
+    "email": "testuser@example.com",
+    "password": "securepassword123"
+  }
+  ```
+
+### 2. User Login
+Log in to get your access token for protected routes.
+- **Endpoint:** `POST /api/auth/login`
+- **Body (JSON):**
+  ```json
+  {
+    "username": "testuser",
+    "password": "securepassword123"
+  }
+  ```
+- **Response:** You will receive an `access_token`. **Copy this token** for the next step.
+
+### 3. Job Creation (Protected Route)
+Add a new job application.
+- **Endpoint:** `POST /api/jobs`
+- **Headers:** 
+  - `Authorization`: `Bearer <paste_your_access_token_here>`
+- **Body (JSON):**
+  ```json
+  {
+    "role": "Software Engineer",
+    "company": "Tech Corp",
+    "location": "Remote",
+    "status": "Applied"
+  }
+  ```
+
+---
+
+## 📂 Project Structure
+
 ```text
 JobTrack/
 │
-├── app.py
-├── extensions.py
-├── requirements.txt
-├── README.md
-├── .env
-├── .gitignore
-│
-├── models/
-│   ├── __init__.py
-│   ├── user.py
-│   └── job.py
-│
-├── routes/
-│   ├── __init__.py
-│   ├── auth_routes.py
-│   └── job_routes.py
-│
-├── migrations/
-│
-└── tests/
-    ├── conftest.py
-    ├── test_auth.py
-    └── test_jobs.py
+├── app.py                 # Application entry point
+├── extensions.py          # Flask extensions setup
+├── requirements.txt       # Project dependencies
+├── models/                # Database models (User, Job)
+├── routes/                # API endpoints (Auth, Jobs)
+├── migrations/            # Database migration files
+└── tests/                 # Pytest test cases
+```
