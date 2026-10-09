@@ -1,4 +1,3 @@
-from flask.cli import load_dotenv
 from flask import Flask, request, jsonify #importing flask application class, request allows us to read the data sent to the client
 from flask_sqlalchemy import SQLAlchemy #SQLAlchemy it bascially translates python operation into SQL
 #SQLAlchemy also uses ORM=Object Relational Mapping without ORM we may write the raw sql queries in our application
@@ -18,12 +17,13 @@ def create_app(test_config=None):
 
     if test_config is None:
 
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///jobtrack.db"
+        app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv( #the application reads the database connection string from an environment variable. That lets us use PostgreSQL locally and on a hosting platform without hard-coding database credentials.
+            "DATABASE_URL",
+            "sqlite:///jobtrack.db"
+        )  
+        app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY") #this helps to create the hash code for the password
 
-        app.config["JWT_SECRET_KEY"] = os.getenv(
-            "JWT_SECRET_KEY"
-        )
-
+        
     else:
 
         app.config.update(test_config)
@@ -41,6 +41,13 @@ def create_app(test_config=None):
     @app.route("/")
     def home():
         return "Welcome to Job Application!!"
+    
+    @app.route("/health", methods=["GET"])
+    def health():
+        return jsonify({
+            "status": "ok"
+        }), 200
+    
 
     return app
 
